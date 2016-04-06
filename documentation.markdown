@@ -1,3 +1,8 @@
+Purpose
+-------
+
+This program parses and evaluates mathematical expressions in prefix (aka Polish) notation.
+
 Syntax
 ------
 
@@ -29,4 +34,10 @@ Syntax
 
 ```
 > +
+```
+
+* An operator cannot be introduced without arguments. This would cause an error.
+
+```
+> (+)
 ```
