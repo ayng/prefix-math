@@ -14,11 +14,11 @@ def main():
 def run_from_stdin():
     '''Read from stdin all at once.'''
     for line in stdin:
-        stdout.write('> ' + line)
+        line = line.rstrip('\n')
         try:
-            print evaluate(line)
+            print format_output(evaluate(line))
         except EvalException as e:
-            print e
+            print "Error: {}".format(e)
 
 
 def run_interactively():
@@ -30,14 +30,20 @@ def run_interactively():
             break
         except EOFError:
             break
+
         try:
-            print evaluate(line)
+            print format_output(evaluate(line))
         except EvalException as e:
             print e
     print '\nBye!'
 
 def evaluate(expr):
-    '''Evaluates expression and returns result.'''
+    '''Evaluates expression and returns result.
+    
+    Raises EvalException upon error.
+
+    Returns either a Python list or integer.
+    '''
 
     def evaluate_helper(expr, i):
         '''Evaluate prefix notation math expression.
@@ -57,7 +63,7 @@ def evaluate(expr):
 
             # Recursively call evaluate_helper on the rest of the tokens.
             arguments = list()
-            next_token = token
+            next_token = peek_token(expr, i)
             while next_token != ')':
                 evaluated_expr, i = evaluate_helper(expr, i)
                 # Result of recursive call could be list or number.
@@ -71,8 +77,10 @@ def evaluate(expr):
             # Skip next token, which we peeked and found to be ')'.
             token, i = parse_token(expr, i)
 
-            if operation:
+            if operation and len(arguments) > 0:
                 return reduce(operation, arguments), i
+            elif operation and len(arguments) == 0:
+                raise EvalException('Found operation with no arguments.')
             else:
                 return arguments, i
 
@@ -84,16 +92,28 @@ def evaluate(expr):
                 value = int(token)
                 return (value, i)
             except ValueError:
-                raise EvalException('"{}" could not be parsed as integer.'\
+                raise EvalException('"{}" could not be parsed.'\
                         .format(token))
     
     # End of function definition for evaluate_helper
 
+    # An empty string will cause tokenizer to fail
     if expr == '':
-        return ''
+        return None
     result, _ = evaluate_helper(expr, 0)
     return result
 
+def format_output(obj):
+    if obj is None:
+        return ''
+    elif type(obj) is list:
+        if len(obj) == 0:
+            return ''
+        obj = map(str, obj)
+        return '({})'.format(' '.join(obj))
+    elif type(obj) is int:
+        return str(obj)
+        
 def peek_token(expr, i):
     token, _ = parse_token(expr, i)
     return token
