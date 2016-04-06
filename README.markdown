@@ -3,6 +3,21 @@ Purpose
 
 This program parses and evaluates mathematical expressions in prefix (aka Polish) notation.
 
+How to run
+----------
+
+You can either just run it plain,
+
+```
+$ python main.py
+```
+
+Or pass in a file through stdin, where each line of the file is one expression you would like evaluated.
+
+```
+$ python main.py < tests.txt
+```
+
 Syntax
 ------
 
