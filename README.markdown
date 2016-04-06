@@ -6,21 +6,37 @@ This program parses and evaluates mathematical expressions in prefix (aka Polish
 How to run
 ----------
 
-You can either just run it plain,
+You can run it with no arguments to start an interactive session.
 
 ```
 $ python main.py
 ```
 
-Or pass in a file through stdin, where each line of the file is one expression you would like evaluated.
+Or, you can pass in a file through stdin, where each line of the file is one expression you would like evaluated.
 
 ```
 $ python main.py < tests.txt
 ```
 
+Quick Syntax
+------------
+
+Write expressions enclosed in parentheses containing space-separated tokens. The first token should be the operator you'd like to use. The next tokens should be numbers you wish to use this operator on. Nested expressions are allowed.
+
+```
+> (+ 1 2 3)
+6
+> (- 3 2)
+1
+> (* (- 3 2) 2 3)
+6
+```
+
 Syntax
 ------
 
+* Under the hood, this evaluator uses Python's reduce on the list of arguments.
+  * For division, `(/ 12 3 2)` would be equivalent to `(12 / 3) / 2`.
 * Arbitrary whitespace is allowed. This includes leading whitespace and whitespace between an open parenthesis and the operator token. For example, the following are valid expressions.
 
 ```
