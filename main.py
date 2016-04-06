@@ -72,6 +72,8 @@ def evaluate(expr):
                 elif type(evaluated_expr) is int:
                     arguments.append(evaluated_expr)
 
+                if i >= len(expr):
+                    raise EvalException('Missing ")".')
                 next_token = peek_token(expr, i)
 
             # Skip next token, which we peeked and found to be ')'.
