@@ -33,11 +33,11 @@
 
 -1
 
-Error: "bare" could not be parsed.
-Error: Found operation with no arguments.
-Error: "1+" could not be parsed.
-Error: "1+1" could not be parsed.
-Error: "**" could not be parsed.
+Error
+Error
+Error
+Error
+Error
 
 (1 2)
 (-1 2)
