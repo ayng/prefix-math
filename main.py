@@ -37,52 +37,66 @@ def run_interactively():
     print '\nBye!'
 
 def evaluate(expr):
+    '''Evaluates expression and returns result.'''
+
+    def evaluate_helper(expr, i):
+        '''Evaluate prefix notation math expression.
+        
+        Returns tuple of the form (evaluate_helperd expression, index i after evaluation).
+        '''
+        token, i = parse_token(expr, i)
+
+        # Handle case of expression enclosed in parentheses.
+        if token == '(':
+            # If there is an operator, set the OPERATION variable.
+            operation = None
+            next_token = peek_token(expr, i)
+            if next_token in ops.keys():
+                token, i = parse_token(expr, i)
+                operation = ops[token]
+
+            # Recursively call evaluate_helper on the rest of the tokens.
+            arguments = list()
+            next_token = token
+            while next_token != ')':
+                evaluated_expr, i = evaluate_helper(expr, i)
+                # Result of recursive call could be list or number.
+                if type(evaluated_expr) is list:
+                    arguments += evaluated_expr
+                elif type(evaluated_expr) is int:
+                    arguments.append(evaluated_expr)
+
+                next_token = peek_token(expr, i)
+
+            # Skip next token, which we peeked and found to be ')'.
+            token, i = parse_token(expr, i)
+
+            if operation:
+                return reduce(operation, arguments), i
+            else:
+                return arguments, i
+
+        # Handle bare expression not enclosed in parentheses.
+        elif token == ')':
+            raise EvalException('Unexpected ")".')
+        else:
+            try:
+                value = int(token)
+                return (value, i)
+            except ValueError:
+                raise EvalException('"{}" could not be parsed as integer.'\
+                        .format(token))
+    
+    # End of function definition for evaluate_helper
+
     if expr == '':
         return ''
     result, _ = evaluate_helper(expr, 0)
     return result
 
-def evaluate_helper(expr, i):
-    '''Evaluate prefix notation math expression.
-    
-    Returns tuple of the form (evaluate_helperd expression, index i after evaluation).
-    '''
-    token, i = parse_token(expr, i)
-
-    # Handle case of expression enclosed in parentheses.
-    if token == '(':
-        # Ensure first token after '(' is operator.
-        token, i = parse_token(expr, i)
-        if token not in ops.keys():
-            raise EvalException('Operator {} expected. Found \'{}\'.'\
-                                .format(ops.keys(), token))
-
-        operation = ops[token]
-        # Recursively call evaluate_helper on the rest of the tokens.
-        arguments = list()
-        next_token = token
-        while next_token != ')':
-            evaluated_expr, i = evaluate_helper(expr, i)
-            arguments.append(evaluated_expr)
-            next_token, _ = parse_token(expr, i)
-
-        token, i = parse_token(expr, i)
-
-        return reduce(operation, arguments), i
-
-    # Handle bare expression not enclosed in parentheses.
-    elif token == ')':
-        raise EvalException('Unexpected ")".')
-    else:
-        try:
-            value = int(token)
-            return (value, i)
-        except ValueError:
-            raise EvalException('Token "{}" could not be parsed as integer.'\
-                    .format(token))
-
-
-
+def peek_token(expr, i):
+    token, _ = parse_token(expr, i)
+    return token
 
 def parse_token(expr, i):
     '''Reads the next token in EXPR after index I, ignoring leading whitespace.
